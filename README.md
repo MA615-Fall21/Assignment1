@@ -1,0 +1,2 @@
+# Assignment1
+a continuation of the assignment we began after the first class.  As you begin using R more, teamwork, production values, internal documentation, and reproducibility will emerge as essential factors affecting the success of your projects. Learning to use the tools that support these success factors is an important part of learning R. In this exercise, you begin with the work that you did in the project where you used the esquisse package to plot some relationships in the mtcars data set.
