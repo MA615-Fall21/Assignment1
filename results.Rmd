@@ -1,0 +1,147 @@
+---
+title: "Car_Results"
+author: "Rose Determan"
+date: "9/20/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+defaultW <- getOption("warn") 
+
+options(warn = -1) 
+```
+
+## Description
+The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+## Usage
+mtcars
+## Format
+A data frame with 32 observations on 11 (numeric) variables.
+
+[, 1]	mpg	Miles/(US) gallon  
+[, 2]	cyl	Number of cylinders  
+[, 3]	disp	Displacement (cu.in.)  
+[, 4]	hp	Gross horsepower  
+[, 5]	drat	Rear axle ratio  
+[, 6]	wt	Weight (1000 lbs)  
+[, 7]	qsec	1/4 mile time  
+[, 8]	vs	Engine (0 = V-shaped, 1 = straight)  
+[, 9]	am	Transmission (0 = automatic, 1 = manual)  
+[,10]	gear	Number of forward gears  
+[,11]	carb	Number of carburetors
+## Note
+Henderson and Velleman (1981) comment in a footnote to Table 1: ‘Hocking [original transcriber]'s noncrucial coding of the Mazda's rotary engine as a straight six-cylinder engine and the Porsche's flat engine as a V engine, as well as the inclusion of the diesel Mercedes 240D, have been retained to enable direct comparisons to be made with previous analyses.’
+
+## Source
+Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.
+
+
+Here we import and process the data called mtcars (motor trend car road tests 
+1974). This dataset contains 32 observations on 11 different variables related
+to fuel consumption, automobile design, and performance.In this analysis we only
+focus on cars which have a mpg of less than 20, and we are interested in the 
+wt, am, mpg, cyl, disp, hp, and gears variables. 
+
+```{r Step1,message=FALSE}
+library(tidyverse)
+
+# call built-in data mtcars.
+data(mtcars)
+
+# Select only car models where mpg<20
+mtcars_mpg2 <- mtcars[mtcars$mpg < 20,]
+
+# Reduce the variables to mpg, cyl, disp, hp, gears
+mtcars_mpg2 <- mtcars_mpg2[, c(1,2,3,4,6,9,10)]
+
+```
+
+Here we import a filed called "hand_functions" and use it on the mtcars dataset.   
+hand_functions computes the mean, variance, covariance, and correlation for/
+between each column of data. We see the beginning of the hand_functions file 
+below. 
+```{r}
+# read the R file hand_functions.R so that it can be used
+# notice that with echo = TRUE 
+source(file = "hand_functions.R", echo = TRUE)
+
+# Now use the function from hand_functions.R
+sp_out <- sum_special(mtcars_mpg2)
+
+sp_out
+```
+Below is an optional chunk of code that allows you to view the dataset in a 
+browser and explore ggplots of the data in an interactive manner.    
+The esquisse interactive page will provide you with ggplot2 code that you can 
+paste and use in an R markdown file.  
+```{r}
+# library(esquisse)
+# 
+# esquisser(data = mtcars_mpg2, viewer = "browser")
+```
+
+Plot of displacement vs mpg.   
+Each red point represents a datapoint from mtcars.  The gray shaded area   
+represents a smoothed function that is calculated using geom_smooth's default  
+loess with a span of 0.5.   
+As shown in the plot, there is not a strong linear signal between displacement 
+and mpg. 
+```{r}
+ggplot(mtcars_mpg2) +
+  aes(x = disp, y = mpg) +
+  geom_point(shape = "bullet", size = 4L, colour = "#B22222") +
+  geom_smooth(span = 0.5, method = 'loess', formula = y~x) +
+  theme_minimal()
+```
+
+Below, is a boxplot that compares the number of cylinders as a factor to mpg. 
+A the bold line in the middle of each boxplot represents the median, while the 
+lines above and below represent the 75th and 25th percentiles of the data. 
+Here, we can see that a car with 6 cylinders has a higher median mpg than a car 
+with 8 cylinders.  
+
+Note that this boxplot cannot be made with esquisse() unless the data is 
+adjusted. In the dataframe, the cylinder column is stored as an integer, but for
+a boxplot the data must be stored as a factor. 
+```{r}
+ggplot(mtcars_mpg2, aes(x=as.factor(cyl), y=mpg)) + 
+  geom_boxplot(fill="slateblue", alpha=0.2) + 
+  xlab("cyl")
+```
+
+Below is a scatterplot that compares car weight and mpg. The plot suggests that 
+heavier cars have lower mpg and lighter cars have a higher mpg. Additionally the
+data are color coded. Blue represents manual transmission vehicles and red 
+represents automatic transmission vehicles. Although there are only three manual 
+vehicles, they seem to have higher mpg and lower weight than their automatic 
+counterparts. 
+```{r}
+#weight vs mpg; color = automatic/manual
+ggplot(mtcars_mpg2) +
+  aes(x = wt, y = mpg, colour = as.factor(am)) +
+  geom_point(shape = "circle", size = 1.5) +
+  scale_colour_discrete() +
+  theme_minimal()
+```
+Below, we examine all of the mtcar data, including both high and low mpg 
+vehicles. Again the data are separated by manual transmission (1) and automatic 
+transmission (0). This plot further supports the claim that manual vehicles have
+a higher mpg than automatic ones. 
+```{r}
+#mpg; separated by automatic/manual
+ggplot(mtcars) +
+  aes(x = "", y = mpg) +
+  geom_boxplot(shape = "circle filled", fill = "#F9E6D0") +
+  theme_classic() +
+  facet_wrap(vars(am))
+```
+
+
+```{r, include = FALSE}
+options(warn = defaultW)
+```
+
